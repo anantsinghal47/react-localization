@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+.changed-cell {
+  background-color: yellow;
+}
+
+.green-bg {background-color: olivedrab;}
+

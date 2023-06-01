@@ -1,66 +1,95 @@
 
+import { useState } from 'react';
 import './App.css';
-import { Suspense, useState } from 'react';
-import i18n from 'i18next';
-import { Trans, initReactI18next, useTranslation } from 'react-i18next';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css'
 
 
-const translationsEn = {
-  welcome : "Welcome",
-  sample : "Sample <bold><italics>text</italics></bold>.",
-  changed: "you have the changed the language {{count}} time",
-  changed_plural:"you have the changed the language {{count}} times",
-};
-const translationsFr = {
-  welcome : "Bienvenue",
-  sample : "Exemple de <bold><italics>texte</italics></bold>.",
-  changed: "Vous avez changé la langue {{count}} fois",
-};
-//passing i18n down to react-i18next
-i18n
-  .use(initReactI18next)
-  .init(
-    {
-      resources: {
-        en: { translation: translationsEn },
-        fr: { translation: translationsFr },
-      },
-      lng: "en",
-      fallbackLng: "en",
-      interpolation: { escapeValue: false }
-    }
-  );
+
 
 
 function App() {
 
-  const {t} = useTranslation();
-  const [count, setCount] = useState(0);
 
-  const onChange = (e) => {
-    i18n.changeLanguage(e.target.value);
-    setCount((prev) => prev + 1);
+
+
+  const [rowData, setRowData] = useState([
+    {
+      'name': "Anant",
+      "place": "Gwalior",
+      "blood": "o"
+    },
+    {
+      'name': "Sajal ",
+      "place": "Gwalior",
+      "blood": "B"
+    },
+    {
+      'name': "Divyanshu",
+      "place": "Gwalior",
+      "blood": "B"
+    },
+  ]);
+
+
+  const [colDefs, setColDefs] = useState([
+    {
+      field: 'name',
+      editable: true,
+
+      // cellStyle: getCellStyle
+    },
+    {
+      field: 'place',
+      editable: true,
+      // cellStyle: getCellStyle
+    },
+    {
+      field: 'blood',
+      editable: true,
+      // cellStyle: getCellStyle
+    },
+  ])
+
+
+  function onCellValueChanged(params) {
+    if (params.oldValue !== params.newValue) {
+      params.colDef.cellStyle = (p) =>
+        p.rowIndex.toString() === params.node.id ?
+
+          {
+            'backgroundColor': 'orange',
+            "outline": "0.5px dotted grey",
+            "outlineOffset": "-5px",
+            "border": "none ",
+            "boxShadow": "inset 0 0 0 5px white"
+          }
+          : {};
+
+      params.api.refreshCells({
+        force: true,
+        columns: [params.column.getId()],
+        rowNodes: [params.node]
+      });
+    }
   }
+
+
   return (
-    <Suspense fallback="Loading...">
-      <div className="App">
-        <header className="App-header">
-          <h1>{t('welcome')}</h1>
-          <p>
-            <Trans components={{bold:<strong/> , italics:<i/>}}>
-              sample
-            </Trans>
-          </p>
-          <p>{t("changed",{count})}</p>
-          <select style={{ padding: "20px" }} name="language" onChange={onChange}>
-            <option value="en">English</option>
-            <option value="fr">French</option>
-          </select>
-        </header>
+    <div className='ag-theme-alpine' style={{
+      height: "200px",
 
-      </div>
-    </Suspense>
+    }}>
+      <AgGridReact
+        rowData={rowData}
+        columnDefs={colDefs}
+        singleClickEdit={true}
+        onCellValueChanged={onCellValueChanged}
+      />
 
+
+    </div>
   );
 }
 
